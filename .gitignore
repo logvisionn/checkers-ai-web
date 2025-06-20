@@ -1,0 +1,37 @@
+# Python cache files
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+.env.local
+
+# Log files
+*.log
+
+# Windows thumbnail cache
+Thumbs.db
+
+# Backend cache in case it appears in subfolders
+backend/__pycache__/
+backend/*.pyc
+
+# Frontend dependencies and build output
+frontend/node_modules/
+frontend/dist/
+node_modules/
+dist/
+
+# Vite cache (if you use Vite)
+frontend/.vite/
+
+# Docker Compose override file
+docker-compose.override.yml
+
+# IDE/editor folders
+.vscode/
+.idea/
+
+# Docker / OS
+.DS_Store
+
