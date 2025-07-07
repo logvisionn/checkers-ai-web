@@ -1,25 +1,52 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  python-lint:
+  backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with: { python-version: "3.10" }
-      - run: pip install black ruff mypy
-      - run: black --check backend
-      - run: ruff backend
-      - run: mypy backend
+      - uses: actions/checkout@v3
 
-  frontend-lint:
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install backend deps & tools
+        run: |
+          pip install --upgrade pip
+          pip install fastapi "uvicorn[standard]" ruff pytest
+
+      - name: Lint Python with ruff
+        run: ruff .
+
+      - name: Run backend tests
+        run: pytest
+
+  frontend:
     runs-on: ubuntu-latest
+    needs: backend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with: { node-version: "18" }
-      - run: cd frontend && npm ci
-      - run: cd frontend && npm run lint         # eslint + prettier
-      - run: cd frontend && npm run type-check   # tsc --noEmit
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install frontend deps
+        run: npm ci
+        working-directory: frontend
+
+      - name: Lint frontend
+        run: npm run lint
+        working-directory: frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend

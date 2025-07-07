@@ -1,37 +1,33 @@
-# Python cache files
+# ─── Python ─────────────────────────────────────────
 __pycache__/
 *.pyc
-
-# Environment variables
+*.pyo
+*.pyd
+.pytest_cache/
 .env
 .env.local
+.venv/
 
-# Log files
-*.log
-
-# Windows thumbnail cache
-Thumbs.db
-
-# Backend cache in case it appears in subfolders
-backend/__pycache__/
-backend/*.pyc
-
-# Frontend dependencies and build output
-frontend/node_modules/
-frontend/dist/
+# ─── Node / Frontend ────────────────────────────────
 node_modules/
 dist/
-
-# Vite cache (if you use Vite)
+frontend/node_modules/
+frontend/dist/
 frontend/.vite/
 
-# Docker Compose override file
+# ─── Conda / caches ────────────────────────────────
+*.sqlite
+*.db
+pip-log.txt
+
+# ─── Logs ──────────────────────────────────────────
+*.log
+
+# ─── Docker ────────────────────────────────────────
 docker-compose.override.yml
 
-# IDE/editor folders
+# ─── OS / Editors ──────────────────────────────────
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
-
-# Docker / OS
-.DS_Store
-
