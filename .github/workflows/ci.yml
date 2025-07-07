@@ -1,0 +1,25 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  python-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with: { python-version: "3.10" }
+      - run: pip install black ruff mypy
+      - run: black --check backend
+      - run: ruff backend
+      - run: mypy backend
+
+  frontend-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
+        with: { node-version: "18" }
+      - run: cd frontend && npm ci
+      - run: cd frontend && npm run lint         # eslint + prettier
+      - run: cd frontend && npm run type-check   # tsc --noEmit

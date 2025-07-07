@@ -1,10 +1,12 @@
-FROM node:18 AS builder
-WORKDIR /app
-COPY package*.json vite.config.js ./
-COPY src/ ./src/
-RUN npm install
-RUN npm run build
+# build stage
+FROM node:18-alpine AS build
+WORKDIR /ui
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend .
+RUN npm run build            # builds to /ui/dist
 
+# run stage
 FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
-EXPOSE 80
+COPY --from=build /ui/dist /usr/share/nginx/html
+# forward API calls to backend container when running docker-compose

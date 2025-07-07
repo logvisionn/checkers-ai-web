@@ -440,9 +440,15 @@ export default function App() {
               >
                 Undo
               </button>
-              <label className="btn btn-select">
+              <label
+                className={`btn btn-select ${gameMode === "multiplayer" ? "disabled" : ""}`}
+              >
                 Difficulty:
-                <select value={depth} onChange={e=>setDepth(+e.target.value)}>
+                <select
+                  value={depth}
+                  onChange={e => setDepth(+e.target.value)}
+                  disabled={gameMode === "multiplayer"}
+                >
                   <option value={2}>Easy</option>
                   <option value={4}>Normal</option>
                   <option value={6}>Hard</option>
