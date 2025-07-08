@@ -1,14 +1,13 @@
-# syntax=docker/dockerfile:1
-FROM python:3.10-slim AS base
+FROM python:3.10-slim
 
 WORKDIR /app
 
-# install only requirements
-COPY backend/requirements.txt .
+# install your Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# copy source
-COPY backend/app ./app
+# copy in your FastAPI app package
+COPY app ./app
 
 EXPOSE 8000
 

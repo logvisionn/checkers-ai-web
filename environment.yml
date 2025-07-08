@@ -1,0 +1,20 @@
+name: checkers-ai-web
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      # web framework & server
+      - fastapi
+      - uvicorn[standard]
+      # load .env if you ever need it in Python
+      - python-dotenv
+      # testing
+      - pytest
+      # linting, formatting, type-checking
+      - ruff
+      - black
+      - mypy
