@@ -356,7 +356,7 @@ export default function App() {
       <div className="wait-screen">
         <div className="wait-modal">
           <h2>Waking up server…</h2>
-          <p>This can take 10–20 s on first visit. Thanks for your patience!</p>
+          <p>This can take 1-2 minutes on first visit. Thanks for your patience!</p>
         </div>
       </div>
     );
