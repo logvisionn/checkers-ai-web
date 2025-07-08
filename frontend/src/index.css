@@ -31,7 +31,6 @@ html, body, #root {
 .app-container.light .modal-overlay {
   background: rgba(0,0,0,0.1);
 }
-/* Ensure modal headings & body text are visible in light mode */
 .app-container.light .modal-content h2 { color: #111; }
 .app-container.light .modal-body     { color: #111; }
 
@@ -54,7 +53,7 @@ header {
   margin: 0 auto;
 }
 .ranks {
-  display: none;   /* we now embed via pseudo‐elements */
+  display: none;   
 }
 .files {
   display: none;
@@ -111,7 +110,7 @@ header {
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.85);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -135,7 +134,7 @@ header {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  align-items: center;    /* ← center all options */
+  align-items: center;    
   color: inherit;
 }
 
@@ -253,7 +252,7 @@ header {
 /* ───────── Wizard Footer (Back / Confirm) ───────── */
 .modal-footer.wizard-footer {
   display: flex;
-  justify-content: center;  /* ← center the buttons */
+  justify-content: center;  
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -265,9 +264,6 @@ header {
 .btn-secondary:hover {
   background: var(--btn-hover);
 }
-
-/* ───────── Embedded Rank/File Labels ───────── */
-/* (already hidden via .ranks/.files above) */
 
 /* ───────── Hint Dots ───────── */
 .hint-dot {
@@ -293,7 +289,7 @@ header {
   border-radius: 0.25rem;
   font-size: 1rem;
   cursor: pointer;
-  appearance: none;          /* remove default arrow */
+  appearance: none;          
   -webkit-appearance: none;
   -moz-appearance: none;
   background-repeat: no-repeat;
@@ -315,7 +311,7 @@ header {
 .wait-screen {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.75);
   display: flex;
   align-items: center;
   justify-content: center;
