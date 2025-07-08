@@ -311,31 +311,41 @@ header {
   color: var(--btn-fg);
 }
 
+/* ───────── Wait-screen overlay ───────── */
 .wait-screen {
+  font-family: inherit;
+
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.85);
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
 }
+
+/* ───────── Wait-modal box ───────── */
 .wait-modal {
-  background: #222;
-  color: #fff;
-  padding: 2rem 3rem;
-  border-radius: 8px;
+  font-family: inherit;              
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  padding: 2rem 1.5rem;
+  max-width: 320px;
+  width: 80%;
+  border-radius: 0.5rem;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
 }
+
 .wait-modal h2 {
-  margin: 0 0 1rem;
+  margin: 0 0 0.75rem;
   font-size: 1.5rem;
+  font-weight: 600;
 }
+
 .wait-modal p {
   margin: 0;
   font-size: 1rem;
+  opacity: 0.75;
+  line-height: 1.4;
 }
