@@ -2,7 +2,7 @@
 
 🔗 **Live Demo:** [real-vs-ai-face-classifier.onrender.com](https://real-vs-ai-face-classifier.onrender.com)  
 🕒 **Note:** This app is hosted on Render’s free tier.  
-It may take 20–30 seconds to wake up on first visit due to cold start.
+It may take 2-3 minutes to wake up on first visit due to cold start for backend.
 
 Play American checkers against a **minimax AI** or another human in real-time, directly in your browser.  
 The entire stack (FastAPI + React + WebSockets) is containerised and auto-deployed via GitHub Actions → Render.
@@ -96,8 +96,5 @@ In future iterations, I plan to add:
 
 MIT — free for personal and commercial use with attribution.
 
----
-
-Happy playing ♟️
 
 
