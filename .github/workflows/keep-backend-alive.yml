@@ -1,0 +1,17 @@
+name: Keep Backend Alive
+
+# runs automatically on a cron schedule
+on:
+  schedule:
+    # every 5 minutes
+    - cron: '*/5 * * * *'
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit health endpoint
+        run: |
+          curl --fail --silent https://checkers-ai-web-backend.onrender.com/health \
+            && echo "✅ backend is alive" \
+            || echo "⚠️ backend did not respond"
