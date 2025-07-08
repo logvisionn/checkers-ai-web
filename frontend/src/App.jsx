@@ -1,57 +1,71 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from "react";
 import Square from "./components/Square";
-import Piece  from "./components/Piece";
+import Piece from "./components/Piece";
 import { initialBoard } from "./utils/gameConstants";
-import { applyMove }    from "./utils/applyMove";
+import { applyMove } from "./utils/applyMove";
 import { useWebSocketState } from "./hooks/useWebSocket";
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export default function App() {
-  // ─── WAKE-UP PING ───────────────────────────────────────
+  // ─── BACKEND HEALTH PING ───────────────────────────────
+  const [backendReady, setBackendReady] = useState(false);
   useEffect(() => {
-    // fire‐and‐forget the health check as soon as the app loads
-    fetch(`${import.meta.env.VITE_API_URL}/health`).catch(() => {});
+    let cancelled = false;
+    const ping = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/health`);
+        if (res.ok) {
+          if (!cancelled) setBackendReady(true);
+        } else {
+          throw new Error("not ready");
+        }
+      } catch {
+        if (!cancelled) setTimeout(ping, 3000);
+      }
+    };
+    ping();
+    return () => { cancelled = true; };
   }, []);
 
   // ─── THEME & TITLE ───────────────────────────────────
   const [theme, setTheme] = useState("dark");
   useEffect(() => {
-    document.body.classList.remove("dark","light");
+    document.body.classList.remove("dark", "light");
     document.body.classList.add(theme);
     document.title = "Checkers Online";
   }, [theme]);
 
   // ─── CORE GAME STATE ──────────────────────────────────
-  const [board, setBoard]       = useState(initialBoard);
-  const [player, setPlayer]     = useState(1);
-  const [turn, setTurn]         = useState("human");
-  const [depth, setDepth]       = useState(4);
-  const [loading, setLoading]   = useState(false);
+  const [board, setBoard] = useState(initialBoard);
+  const [player, setPlayer] = useState(1);
+  const [turn, setTurn] = useState("human");
+  const [depth, setDepth] = useState(4);
+  const [loading, setLoading] = useState(false);
   const [gameOver, setGameOver] = useState(null);
-  const [validMoves, setValidMoves]   = useState([]);
-  const [selected, setSelected]       = useState(null);
+  const [validMoves, setValidMoves] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [possibleDestinations, setPD] = useState([]);
-  const [lastMove, setLastMove]       = useState([]);
-  const [history, setHistory]         = useState([]);
+  const [lastMove, setLastMove] = useState([]);
+  const [history, setHistory] = useState([]);
 
   // ─── MULTIPLAYER / AI & WS ──────────────────────────
-  const [gameMode, setGameMode]     = useState(null);
-  const [roomId, setRoomId]         = useState("");
+  const [gameMode, setGameMode] = useState(null);
+  const [roomId, setRoomId] = useState("");
   const [connecting, setConnecting] = useState(false);
-  const [socketUrl, setSocketUrl]   = useState(null);
+  const [socketUrl, setSocketUrl] = useState(null);
   const { readyState, lastMessage, sendMessage } = useWebSocketState(socketUrl);
   const [currentMove, setCurrentMove] = useState(null);
 
   // ─── TRACK START & JOINS ────────────────────────────
-  const [joinCount, setJoinCount]     = useState(0);
+  const [joinCount, setJoinCount] = useState(0);
   const [gameStarted, setGameStarted] = useState(false);
 
   // ─── WIZARD MODAL ───────────────────────────────────
   const [showModal, setShowModal] = useState(true);
   const [modalStep, setModalStep] = useState(1);
-  const [userSide, setUserSide]   = useState(null);
+  const [userSide, setUserSide] = useState(null);
 
   // ─── RESET WIZARD MODAL ─────────────────────────────
   useEffect(() => {
@@ -67,7 +81,7 @@ export default function App() {
     }
   }, [showModal]);
 
-  // ─── AUTO-ADVANCE to side-select only after WS is open ─
+  // ─── AUTO-ADVANCE to side-select once WS is open ─────
   useEffect(() => {
     if (
       gameMode === "multiplayer" &&
@@ -81,34 +95,30 @@ export default function App() {
   // ─── HANDLE incoming WS messages ─────────────────────
   useEffect(() => {
     if (!lastMessage) return;
-
     if (lastMessage.type === "joined") {
       setJoinCount(lastMessage.count);
     }
-
     if (
       lastMessage.type === "start" &&
       !gameStarted &&
       gameMode === "multiplayer"
     ) {
       const theirSide = lastMessage.side;
-      const mySide    = theirSide === "white" ? "black" : "white";
+      const mySide = theirSide === "white" ? "black" : "white";
       setUserSide(mySide);
       doStartGame(mySide, false);
     }
-
     if (lastMessage.type === "move" && gameMode === "multiplayer") {
       const m = lastMessage.move;
-      setBoard(prev => {
+      setBoard((prev) => {
         let cur = prev;
         for (let i = 1; i < m.length; i++) {
           cur = applyMove(cur, m[i - 1], m[i]);
         }
         return cur;
       });
-      setLastMove([ m[m.length - 2], m[m.length - 1] ]);
-      // flip turn back to human
-      setTurn(prev => prev === "human" ? "opponent" : "human");
+      setLastMove([m[m.length - 2], m[m.length - 1]]);
+      setTurn((p) => (p === "human" ? "opponent" : "human"));
     }
   }, [lastMessage, gameMode, gameStarted]);
 
@@ -129,66 +139,77 @@ export default function App() {
     setGameOver(null);
     setHistory([]);
     setLoading(false);
-    setTurn(gameMode === "ai"
-      ? (pl === 1 ? "human" : "ai")
-      : (pl === 1 ? "human" : "opponent")
+    setTurn(
+      gameMode === "ai"
+        ? pl === 1
+          ? "human"
+          : "ai"
+        : pl === 1
+        ? "human"
+        : "opponent"
     );
     setShowModal(false);
     setGameStarted(true);
-    if (broadcast) sendMessage({ type:"start", side });
+    if (broadcast) sendMessage({ type: "start", side });
   };
   const startGame = () => {
     if (!userSide) return;
-    let side = userSide === "random"
-      ? (Math.random() < 0.5 ? "white" : "black")
-      : userSide;
+    let side = userSide;
+    if (side === "random") {
+      side = Math.random() < 0.5 ? "white" : "black";
+    }
     doStartGame(side, true);
   };
 
-  // ─── UNDO
+  // ─── UNDO ───────────────────────────────────────────
   const snapshot = () =>
-    setHistory(h => [...h, {
-      board: JSON.parse(JSON.stringify(board)),
-      turn, gameOver, lastMove
-    }]);
-  const undo = () => setHistory(h => {
-    if (!h.length) return h;
-    const prev = h.pop();
-    setBoard(prev.board);
-    setTurn(prev.turn);
-    setGameOver(prev.gameOver);
-    setLastMove(prev.lastMove);
-    return [...h];
-  });
+    setHistory((h) => [
+      ...h,
+      { board: JSON.parse(JSON.stringify(board)), turn, gameOver, lastMove },
+    ]);
+  const undo = () =>
+    setHistory((h) => {
+      if (!h.length) return h;
+      const prev = h.pop();
+      setBoard(prev.board);
+      setTurn(prev.turn);
+      setGameOver(prev.gameOver);
+      setLastMove(prev.lastMove);
+      return [...h];
+    });
 
-  // ─── FETCH LEGAL MOVES WHEN IT’S YOUR TURN ────────────
+  // ─── FETCH LEGAL MOVES WHEN IT’S YOUR TURN ───────────
   useEffect(() => {
     if (turn !== "human") return;
     fetch(`${import.meta.env.VITE_API_URL}/moves`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ board, player, depth })
+      body: JSON.stringify({ board, player, depth }),
     })
-    .then(r => r.json())
-    .then(({ moves }) => {
-      setValidMoves(moves);
-      if (!moves.length) setGameOver("lose");
-      setSelected(null);
-      setPD([]);
-    })
-    .catch(() => {
-      setValidMoves([]);
-    });
+      .then((r) => r.json())
+      .then(({ moves }) => {
+        setValidMoves(moves);
+        if (!moves.length) setGameOver("lose");
+        setSelected(null);
+        setPD([]);
+      })
+      .catch(() => {
+        setValidMoves([]);
+      });
   }, [turn, board, player, depth, gameMode]);
 
   // ─── GAME OVER CHECK ──────────────────────────────────
   const checkGameOverAfter = async (bd, pl) => {
-    const { moves } = await fetch(`${import.meta.env.VITE_API_URL}/moves`, {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ board: bd, player: pl, depth })
-    }).then(r=>r.json());
+    const { moves } = await fetch(
+      `${import.meta.env.VITE_API_URL}/moves`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ board: bd, player: pl, depth }),
+      }
+    ).then((r) => r.json());
     if (!moves.length) {
-      setGameOver(pl===1 ? "lose" : "win");
+      setGameOver(pl === 1 ? "lose" : "win");
       return true;
     }
     return false;
@@ -198,21 +219,26 @@ export default function App() {
   const onSquareClick = async (r, c) => {
     if (turn !== "human" || loading || gameOver) return;
 
-    // 1) pick up
     if (!selected) {
-      const picks = validMoves.filter(m => m[0][0]===r && m[0][1]===c);
+      // pick up
+      const picks = validMoves.filter(
+        (m) => m[0][0] === r && m[0][1] === c
+      );
       if (!picks.length) return;
       setCurrentMove(null);
-      const jumps = picks.filter(m => Math.abs(m[1][0]-m[0][0])===2);
-      setSelected([r,c]);
-      setPD((jumps.length ? jumps : picks).map(m => m[1]));
+      const jumps = picks.filter((m) => Math.abs(m[1][0] - m[0][0]) === 2);
+      setSelected([r, c]);
+      setPD((jumps.length ? jumps : picks).map((m) => m[1]));
       return;
     }
 
-    // 2) drop
-    const seg = validMoves.find(m =>
-      m[0][0]===selected[0]&&m[0][1]===selected[1]
-      && m[1][0]===r&&m[1][1]===c
+    // drop
+    const seg = validMoves.find(
+      (m) =>
+        m[0][0] === selected[0] &&
+        m[0][1] === selected[1] &&
+        m[1][0] === r &&
+        m[1][1] === c
     );
     if (!seg) {
       setSelected(null);
@@ -221,45 +247,46 @@ export default function App() {
       return;
     }
 
-    // accumulate path
-    const newPath = currentMove
-      ? [...currentMove, seg[1]]
-      : [seg[0], seg[1]];
+    // accumulate and apply
+    const newPath = currentMove ? [...currentMove, seg[1]] : [seg[0], seg[1]];
     setCurrentMove(newPath);
     snapshot();
-
-    // apply that hop
     const newBoard = applyMove(board, seg[0], seg[1]);
     setBoard(newBoard);
     setLastMove([seg[0], seg[1]]);
 
-    // 3) chain captures?
-    if (Math.abs(seg[1][0]-seg[0][0])===2) {
+    // chain captures?
+    if (Math.abs(seg[1][0] - seg[0][0]) === 2) {
       const cont = await fetch(`${import.meta.env.VITE_API_URL}/moves`, {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ board: newBoard, player, depth })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ board: newBoard, player, depth }),
       })
-      .then(r=>r.json()).then(j=>j.moves).catch(() => []);
+        .then((r) => r.json())
+        .then((j) => j.moves)
+        .catch(() => []);
       const land = seg[1];
-      const more = cont.filter(m =>
-        m[0][0]===land[0] && m[0][1]===land[1]
-        && Math.abs(m[1][0]-m[0][0])===2
+      const more = cont.filter(
+        (m) =>
+          m[0][0] === land[0] &&
+          m[0][1] === land[1] &&
+          Math.abs(m[1][0] - m[0][0]) === 2
       );
       if (more.length) {
         setValidMoves(cont);
         setSelected(land);
-        setPD(more.map(m=>m[1]));
+        setPD(more.map((m) => m[1]));
         return;
       }
     }
 
-    // 4) done
+    // done
     setSelected(null);
     setPD([]);
 
     if (gameMode === "multiplayer") {
-      sendMessage({ type:"move", move:newPath });
-      setTurn(prev => prev === "human" ? "opponent" : "human");
+      sendMessage({ type: "move", move: newPath });
+      setTurn((p) => (p === "human" ? "opponent" : "human"));
       setCurrentMove(null);
     } else {
       setTurn("ai");
@@ -275,21 +302,39 @@ export default function App() {
     (async () => {
       setLoading(true);
       await sleep(800);
-      const { moves: aiMoves } = await fetch(`${import.meta.env.VITE_API_URL}/moves`, {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ board, player: -player, depth })
-      }).then(r=>r.json());
-      if (!aiMoves.length) { setGameOver("win"); setLoading(false); return; }
-      const { move: aiMove=[] } = await fetch(`${import.meta.env.VITE_API_URL}/move`, {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ board, player: -player, depth })
-      }).then(r=>r.json()).catch(() => ({ }));
-      if (!aiMove.length) { setGameOver("win"); setLoading(false); return; }
+      const { moves: aiMoves } = await fetch(
+        `${import.meta.env.VITE_API_URL}/moves`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ board, player: -player, depth }),
+        }
+      ).then((r) => r.json());
+      if (!aiMoves.length) {
+        setGameOver("win");
+        setLoading(false);
+        return;
+      }
+      const { move: aiMove = [] } = await fetch(
+        `${import.meta.env.VITE_API_URL}/move`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ board, player: -player, depth }),
+        }
+      )
+        .then((r) => r.json())
+        .catch(() => ({}));
+      if (!aiMove.length) {
+        setGameOver("win");
+        setLoading(false);
+        return;
+      }
       let cur = board;
       for (let i = 1; i < aiMove.length; i++) {
-        cur = applyMove(cur, aiMove[i-1], aiMove[i]);
+        cur = applyMove(cur, aiMove[i - 1], aiMove[i]);
         setBoard(cur);
-        setLastMove([ aiMove[i-1], aiMove[i] ]);
+        setLastMove([aiMove[i - 1], aiMove[i]]);
         await sleep(300);
       }
       setLoading(false);
@@ -298,13 +343,26 @@ export default function App() {
     })();
   }, [turn]);
 
-  const isWaiting = (
-    gameMode==="multiplayer" &&
+  const isWaiting =
+    gameMode === "multiplayer" &&
     gameStarted &&
     joinCount < 2 &&
-    readyState === WebSocket.OPEN
-  );
+    readyState === WebSocket.OPEN;
 
+  // ─── RENDER ─────────────────────────────────────────
+  // 1) while we’re pinging backend, show full-screen “please wait”
+  if (!backendReady) {
+    return (
+      <div className="wait-screen">
+        <div className="wait-modal">
+          <h2>Waking up server…</h2>
+          <p>This can take 10–20 s on first visit. Thanks for your patience!</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // 2) once ready, show the normal wizard or board
   return (
     <div className={`app-container ${theme}`}>
       {showModal ? (
