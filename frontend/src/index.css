@@ -313,8 +313,6 @@ header {
 
 /* ───────── Wait-screen overlay ───────── */
 .wait-screen {
-  font-family: inherit;
-
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0.85);
@@ -325,8 +323,7 @@ header {
 }
 
 /* ───────── Wait-modal box ───────── */
-.wait-modal {
-  font-family: inherit;              
+.wait-modal {             
   background: var(--btn-bg);
   color: var(--btn-fg);
   padding: 2rem 1.5rem;
@@ -348,4 +345,9 @@ header {
   font-size: 1rem;
   opacity: 0.75;
   line-height: 1.4;
+}
+
+.wait-screen,
+.wait-modal {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
