@@ -9,6 +9,12 @@ import { useWebSocketState } from "./hooks/useWebSocket";
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 export default function App() {
+  // ─── WAKE-UP PING ───────────────────────────────────────
+  useEffect(() => {
+    // fire‐and‐forget the health check as soon as the app loads
+    fetch(`${import.meta.env.VITE_API_URL}/health`).catch(() => {});
+  }, []);
+
   // ─── THEME & TITLE ───────────────────────────────────
   const [theme, setTheme] = useState("dark");
   useEffect(() => {

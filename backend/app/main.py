@@ -5,7 +5,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List, Tuple
 
-# Relative imports into our app package
 from .minimax.board import Board, Piece
 from .minimax.logic import minimax
 from .ws_manager import ConnectionManager
@@ -84,3 +83,12 @@ async def websocket_endpoint(ws: WebSocket, room_id: str):
             await manager.broadcast(room_id, data, sender=ws)  # <-- here
     except WebSocketDisconnect:
         manager.disconnect(room_id, ws)
+
+# ─── HEALTH CHECK ────────────────────────────────────────
+@app.get("/health")
+async def health_check():
+    """
+    Simple no-op endpoint to let clients (or cron jobs)
+    wake the service up without doing any real work.
+    """
+    return {"ok": True}
