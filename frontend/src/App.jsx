@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Square from "./components/Square";
 import Piece  from "./components/Piece";
 import { initialBoard } from "./utils/gameConstants";
