@@ -26,8 +26,7 @@ jobs:
         run: ruff check .
 
       - name: Run backend tests
-        working-directory: backend
-        run: pytest
+        run: pytest backend
 
   frontend:
     runs-on: ubuntu-latest
