@@ -23,7 +23,7 @@ jobs:
           pip install fastapi "uvicorn[standard]" ruff pytest
 
       - name: Lint Python with ruff
-        run: ruff .
+        run: ruff check .
 
       - name: Run backend tests
         run: pytest
