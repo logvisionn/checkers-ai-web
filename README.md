@@ -1,6 +1,6 @@
 # ♟️ Checkers-AI-Web
 
-🔗 **Live Demo:** [real-vs-ai-face-classifier.onrender.com](https://real-vs-ai-face-classifier.onrender.com)  
+🔗 **Live Demo:** https://checkers-ai-web-frontend.onrender.com
 🕒 **Note:** This app is hosted on Render’s free tier.  
 It may take 1-2 minutes to wake up on first visit due to cold start for backend.
 
